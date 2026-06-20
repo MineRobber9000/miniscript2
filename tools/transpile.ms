@@ -1879,15 +1879,18 @@ if locals == globals then
 	decLines.push "// FORWARD DECLARATIONS"
 	decLines.push ""
 	decLines.push "namespace MiniScript {"
+	classLines = []
 	for class in t.allClasses
 		if class.elsewhere then continue
 		if class.type == ClassType.CLASS then
-			decLines.push "struct ≤name≥;".fill(class)
-			decLines.push "class ≤name≥Storage;".fill(class)
+			classLines.push "struct ≤name≥;".fill(class)
+			classLines.push "class ≤name≥Storage;".fill(class)
 		else if class.type == ClassType.STRUCT and not class.static then
-			decLines.push "struct ≤name≥;".fill(class)
+			classLines.push "struct ≤name≥;".fill(class)
 		end if
 	end for
+	classLines.sort
+	decLines += classLines
 	decLines.push "}"
 	file.writeLines file.child(t.outputFolder, "forward_decs.g.h"), decLines
 	print

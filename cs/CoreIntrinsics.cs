@@ -26,6 +26,11 @@ using System.Collections.Generic;
 #elif defined(__linux__)
 #include <fstream>
 #include <string>
+#elif defined(__COSMOPOLITAN__)
+#include <sys/utsname.h>
+#include <fstream>
+#include "libc/dce.h"
+#include "libc/calls/calls.h"
 #endif
 *** END CPP_ONLY ***/
 
@@ -96,6 +101,37 @@ public static class CoreIntrinsics {
 			}
 		}
 		return platform;
+		#elif defined(__COSMOPOLITAN__)
+		String os;
+		if (IsLinux()) { // /etc/os-release parsing
+			std::ifstream osrelease("/etc/os-release");
+			std::string line;
+			while (std::getline(osrelease, line)) {
+				if (line.compare(0, 12, "PRETTY_NAME=") == 0) {
+					std::string val = line.substr(12);
+					if (val.size() >= 2 && val.front() == '"' && val.back() == '"') {
+						val = val.substr(1, val.size() - 2);
+					}
+					os = String(val.c_str());
+					break;
+				}
+			}
+		} else if (IsXnu()) { // macOS, use sysctlbyname
+			os = "macOS";
+			char osversion[32];
+			size_t osversion_len = sizeof(osversion);
+			if (sysctlbyname("kern.osproductversion", osversion, &osversion_len, NULL, 0) == 0) {
+				os = String("macOS ") + osversion;
+			}
+		} else { // Windows, BSDs, or total unknowns (try uname, which on Cosmopolitan ought to handle all)
+			struct utsname u;
+			if (uname(&u)==0) {
+				os = String(u.sysname) + " " + String(u.release);
+			} else {
+				os = "Unknown";
+			}
+		}
+		return os + " (Cosmopolitan)";
 		#elif defined(__linux__)
 		String platform = "Linux";
 		{

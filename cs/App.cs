@@ -37,6 +37,9 @@ using MiniScript;
 // ^^^^^^^^^ if either of these things change in the below code, this will need rewritten
 void setenv(const char *name, const char *value, int overwrite) { SetEnvironmentVariableA(name, value); }
 #endif
+#ifdef __COSMOPOLITAN__
+#include <cosmo.h>
+#endif
 using namespace MiniScript;
 *** END CPP_ONLY ***/
 
@@ -57,6 +60,8 @@ public struct App {
 			CoreIntrinsics::hostName = "Command-Line (Windows)";
 		#elif defined(__APPLE__) || defined(__FreeBSD__)
 			CoreIntrinsics::hostName = "Command-Line (Unix)";
+		#elif defined(__COSMOPOLITAN__)
+			CoreIntrinsics::hostName = "Command-Line (Cosmopolitan)";
 		#else
 			CoreIntrinsics::hostName = "Command-Line (Linux)";
 		#endif
@@ -185,6 +190,8 @@ public struct App {
 			char exePath[1024] = {0};
 			#ifdef _WIN32
 				GetModuleFileNameA(nullptr, exePath, sizeof(exePath));
+			#elif defined(__COSMOPOLITAN__)
+				strncpy(exePath, GetProgramExecutableName(), 1024);
 			#else
 				ssize_t len = readlink("/proc/self/exe", exePath, sizeof(exePath) - 1);
 				if (len < 0) { exePath[0] = '.'; exePath[1] = '\0'; }
@@ -762,6 +769,10 @@ public struct App {
 /*** BEGIN CPP_ONLY ***
 
 int main(int argc, const char* argv[]) {
+#if __COSMOPOLITAN__
+	ShowCrashReports();
+	std::setbuf(stdout, NULL);
+#endif
 	List<String> args;
 	for (int i=0; i<argc; i++) args.Add(String(argv[i]));
 	MiniScript::App::MainProgram(args);

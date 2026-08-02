@@ -14,6 +14,10 @@ tools/build.sh all        # Build everything (C#, transpile, C++)
 tools/build.sh test       # Run smoke tests
 ```
 
+For the Cosmopolitan build specifically, use CMake with the provided `cosmopolitan-toolchain.cmake` toolchain (expects [cosmocc][] on PATH).
+
+[cosmocc]: https://cosmo.zip/pub/cosmocc/ "Use cosmocc.zip or cosmocc-4.0.2.zip"
+
 ## Notes
 
 - [CS_CODING_STANDARDS.md](notes/CS_CODING_STANDARDS.md) — C# coding restrictions required by the C#-to-C++ transpiler.

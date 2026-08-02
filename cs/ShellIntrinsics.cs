@@ -174,7 +174,16 @@ public static class ShellIntrinsics {
 		Value importPathKey = Value.make_string("MS_IMPORT_PATH");
 		Value existing;
 		if (!_envMap.TryGet(importPathKey, out existing) || existing.IsNull()) {
+			// *** BEGIN CS_ONLY ***
 			_envMap.MapSet(importPathKey, Value.make_string(kDefaultImportPath));
+			// *** END CS_ONLY ***
+			/*** BEGIN CPP_ONLY ***
+#ifdef __COSMOPOLITAN__
+			_envMap.MapSet(importPathKey, Value::make_string(kDefaultImportPath + ":/zip/lib"));
+#else
+			_envMap.MapSet(importPathKey, Value::make_string(kDefaultImportPath));
+#endif
+			*** END CPP_ONLY ***/
 		}
 		return _envMap;
 	}
@@ -2368,6 +2377,11 @@ public static class ShellIntrinsics {
 			String searchPath;
 			if (!GetEnvMap().TryGet(Value.make_string("MS_IMPORT_PATH"), out pathVal) || pathVal.IsNull()) {
 				searchPath = kDefaultImportPath;	// (shouldn't happen; GetEnvMap seeds it)
+				/*** BEGIN CPP_ONLY
+#ifdef __COSMOPOLITAN__
+				searchPath += ":/zip/lib";
+#endif
+				END CPP_ONLY  ***/
 			} else {
 				searchPath = pathVal.AsCString();
 			}

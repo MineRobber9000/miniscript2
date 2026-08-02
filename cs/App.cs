@@ -768,10 +768,11 @@ public struct App {
 
 /*** BEGIN CPP_ONLY ***
 
-int main(int argc, const char* argv[]) {
+int main(int argc, char* argv[]) {
 #if __COSMOPOLITAN__
 	ShowCrashReports();
 	std::setbuf(stdout, NULL);
+	argc = cosmo_args("/zip/.args", &argv);
 #endif
 	List<String> args;
 	for (int i=0; i<argc; i++) args.Add(String(argv[i]));

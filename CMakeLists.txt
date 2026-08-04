@@ -20,11 +20,21 @@ file(GLOB MS2_GEN_SOURCES CONFIGURE_DEPENDS
 
 set(MINISCRIPT_SOURCES ${MS2_CORE_SOURCES} ${MS2_GEN_SOURCES})
 
+set(EDITLINE_DIR ${CMAKE_SOURCE_DIR}/cpp/editline)
+
+file(GLOB EDITLINE_SOURCES CONFIGURE_DEPENDS
+	${EDITLINE_DIR}/*.c
+)
+
 add_executable(miniscript2
 	${MINISCRIPT_SOURCES}
 )
 
 if(COSMOPOLITAN)
+	# enable editline
+	target_sources(miniscript2 PRIVATE ${EDITLINE_SOURCES})
+	target_include_directories(miniscript2 PRIVATE ${EDITLINE_DIR})
+	target_compile_definitions(miniscript2 PRIVATE USE_EDITLINE=1)
 	# enable additional cosmopolitan features we use
 	target_compile_options(miniscript2 PRIVATE
 		-mcosmo
